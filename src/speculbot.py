@@ -1,13 +1,11 @@
-from pandas.core.frame import DataFrame
 import yfinance as yf
-import pandas as pd
-from matplotlib import pyplot as plt
-import shutil, os, time, glob
-import numpy as np
-from statistics import mean
+import time
 import requests
 from collections import deque
-from threading import Event
+from threading import Event, Thread
+
+from yfinance.ticker import Ticker
+
 
 class TickerCircularBuffer:
 
@@ -25,27 +23,30 @@ class TickerCircularBuffer:
         ticker = self.deque.pop()
         self.deque.insert(0, ticker)
 
-
 class SpeculBot:
 
     SELL = "SELL"
     BUY = "BUY"
     TEST = "TEST"
 
-    def __init__(self, symbols: list, name="SpeculBot"):
+    def __init__(self, algo, symbols: list, name="SpeculBot"):
         self.flag = Event()
 
         # API vars
         self.num_API_calls = 0
         self.stock_failures = 0
 
-        self.name = name
-
-        # Le maximum est arbitraire, mais je crois qu'avec plusieurs SpeculBot, il y aura des problème de rapidité
         self.tickers = TickerCircularBuffer(symbols, maxlen=100)
 
+        # Class properties
+        self.name = name
+
+        # Algorithm to run
+        self.algo = algo
+
         # Donnée devant être transmise au contrôleur StockBoy
-        self.MACD = None
+        self.latest_df = None
+        self._thread = Thread(target=self.run)
 
     def run(self):
         while not self.flag.is_set():
@@ -53,7 +54,6 @@ class SpeculBot:
                 try:
                     ticker = self.fetch_data(self.tickers.get_first())
                     history = ticker.history(period="3mo", interval="1d")[['Close', 'Open', 'High', 'Volume', 'Low']]
-                    self.tickers.rotate()
                     break
 
                 except Exception as ex:
@@ -69,8 +69,10 @@ class SpeculBot:
 
                     self.stock_failures += 1
 
-            self.macd(history)
-            time.sleep(5)
+            self.latest_df = self.algo(history)
+            print(self.latest_df)
+            time.sleep(3) # Should be a wait function for a barrier
+            
 
     # Cette fonction pourrait être un peu plus spécifique en ce qui concerne l'information "fetché"
     def fetch_data(self, symbol: str):
@@ -83,40 +85,21 @@ class SpeculBot:
         self.num_API_calls += 1
 
         return n_ticker
+    
+    def start(self):
+        self._thread.start()
 
-    def macd(self, history):
-        # This list holds the closing prices of a stock
-        prices = []
-
-        # Add the closing prices to the prices list and make sure we start at greater than 2 dollars to reduce outlier calculations.
-        for price in history['Close']:
-            if price > float(2.00):  # Check that the closing price for this day is greater than $2.00
-                prices.append(price)
-        
-        prices_df = pd.DataFrame(prices)  # Make a dataframe from the prices list
-
-        # Calculate exponential weighted moving averages:
-        day12 = prices_df.ewm(span=12, adjust=False).mean()
-        day26 = prices_df.ewm(span=26, adjust=False).mean()
-        macd = day12 - day26
-
-        signal = macd.ewm(span=9, adjust=False).mean()
-
-        condiv = macd - signal
-
-        # Add all of our new values for the MACD to the dataframe
-        history['MACD'] = macd
-        history['Conv/Div'] = condiv
-        history['Signal'] = signal
-        # View our data
-        pd.set_option("display.max_columns", None)
-
-        print(history)
-        
     def stop(self):
         self.flag.set()
 
-    @property
-    def get_name(self):
+    def is_alive(self):
+        return self._thread.is_alive()
+
+    def join(self):
+        self._thread.join()
+
+    def name(self):
         return self.name
 
+    def symbols(self):
+        return self.symbols

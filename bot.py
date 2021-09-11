@@ -1,22 +1,26 @@
-import sys, time
-from src.SpeculBot import SpeculBot
-from threading import Thread
+import time
+import threading
+
+from botcontroller import BotController
+from src.algos.algos import *
 
 
 def main():
-    spec = SpeculBot(["GME"])
 
-    t1 = Thread(target=spec.run)
-    t1.start()
+    bc = BotController()
+    bc.add_speculbot(algo=macd, symbols=["TQQQ", "GME", "AAPL", "GOOG"], name="TEST")
+    bc.add_speculbot(algo=macd, symbols=["ETH", "BTC", "USD"], name="TOTO")
+    bc.add_speculbot(algo=macd, symbols=["A", "AA", "AMC"], name="TATA")
 
     try:
+        while len(threading.enumerate()) > 1:
+            time.sleep(10)
+            break
 
-        while t1.is_alive:
-            time.sleep(1)
-            continue
+        bc.shutdown()
+
     except KeyboardInterrupt:
         print(" ---- END OF PROGRAM")
-        spec.stop()
         quit()
 
 if __name__ == "__main__":
