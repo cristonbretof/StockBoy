@@ -1,11 +1,6 @@
 #Le code marche pas dans collab, mais marche très bien sous linux (AKA PopOS ou Raspberry PI OS par exemple)
 import os
 import json
-import discord
-from dotenv import load_dotenv
-from discord.ext import commands
-from discord.utils import get
-from discord.ext import tasks
 
 from src.speculbot import SpeculBot
 import requests
@@ -25,9 +20,9 @@ class BotController:
     def send_results(self):
         for name, bot in self.bots.items():
             results = bot.get_results()
-
-            contents = ""
-            self.send_notification(name=name, content=results)
+            if isinstance(results, tuple):
+                content = f"Stock: {results[0]} Signal: {results[1]}"
+                self.send_notification(name=name, content=content)
 
     def send_notification(self, content: str, name: str):
         data = {
@@ -44,8 +39,8 @@ class BotController:
         else:
             pass
 
-    def add_speculbot(self, algo, symbol, name: str):
-        self.bots[name] = SpeculBot(algo, symbol, name)
+    def add_speculbot(self, algo, symbol, name: str, stop_loss:float):
+        self.bots[name] = SpeculBot(algo, symbol, name, stop_loss=stop_loss)
         self.bots[name].start()
 
     def remove_speculbot(self, name: str):

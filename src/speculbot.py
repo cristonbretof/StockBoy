@@ -1,5 +1,4 @@
 import yfinance as yf
-import time
 import requests
 from collections import deque
 from threading import Event, Thread
@@ -28,7 +27,7 @@ class TickerCircularBuffer:
 
 class SpeculBot:
 
-    def __init__(self, algo, symbol, name="SpeculBot"):
+    def __init__(self, algo, symbol, name="SpeculBot", stop_loss=-0.03):
         self.flag = Event()
 
         # API vars
@@ -42,11 +41,13 @@ class SpeculBot:
         self.algo = algo
 
         # Runtime BUY/SELL signals emitted
-        self.buysell_states = [0]
+        self.buysell_states = [-1]
 
         # Donnée devant être transmise au contrôleur StockBoy
         self.latest_df = None
         self._thread = Thread(target=self.run)
+
+        self.stop_loss_ref = stop_loss
 
     def run(self):
         while not self.flag.is_set():
@@ -56,7 +57,8 @@ class SpeculBot:
         history = None
         try:
             ticker = self.fetch_data(self.ticker)
-            history = ticker.history(period="3mo", interval="1d")[['Close', 'Open', 'High', 'Volume', 'Low']]
+            # XXX DO NOT TOUCH THE "1y" XXX
+            history = ticker.history(period="1y", interval="1d")[['Close', 'Open', 'High', 'Volume', 'Low']]
 
         except Exception as ex:
             if type(ex) is ValueError:
@@ -66,13 +68,16 @@ class SpeculBot:
             else:
                 print("{err}".format(err=ex))
 
-        results = self.algo(history, self.buysell_states[-1])
+        results = self.algo(history, self.buysell_states[-1], stop_loss=self.stop_loss_ref)
+
         if results == 1:
-            return BUY
+            self.buysell_states.append(results)
+            return (self.ticker, BUY)
         elif results == 0:
-            return SELL
+            self.buysell_states.append(results)
+            return (self.ticker, SELL)
         else:
-            return TBD
+            return results
 
     # Cette fonction pourrait être un peu plus spécifique en ce qui concerne l'information "fetché"
     def fetch_data(self, symbols):
