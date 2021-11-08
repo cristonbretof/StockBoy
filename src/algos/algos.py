@@ -34,6 +34,9 @@ def macd(history, last_state, stop_loss):
         ratio = (closing_yesterday - closing_today)/closing_yesterday
         if ratio < stop_loss:
             return 0
+    print(f"LOGGING REPORT")
+    print(f"Current State: {current_state}, Last State: {last_state}")
+    print(f"MACD: {macd.iloc[-1][0]}, Signal: {signal.iloc[-1][0]}")
 
     if current_state == 1 and last_state <= 0:
         return 1

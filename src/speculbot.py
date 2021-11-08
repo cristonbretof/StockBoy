@@ -58,7 +58,7 @@ class SpeculBot:
         try:
             ticker = self.fetch_data(self.ticker)
             # XXX DO NOT TOUCH THE "1y" XXX
-            history = ticker.history(period="1y", interval="1d")[['Close', 'Open', 'High', 'Volume', 'Low']]
+            history = ticker.history(period="1mo", interval="5m")[['Close', 'Open', 'High', 'Volume', 'Low']]
 
         except Exception as ex:
             if type(ex) is ValueError:
