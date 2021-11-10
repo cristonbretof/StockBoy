@@ -29,7 +29,7 @@ class BotTicker:
 
     @result.setter
     def result(self, result: int):
-        self._result(result)
+        self._result = result
 
 class SpeculBot:
 
