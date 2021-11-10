@@ -23,7 +23,7 @@ def main():
 
     # Setup Bot Controller
     bc = BotController()
-    bc.add_speculbot(algo=macd, symbol="TQQQ", name="MACkDy", stop_loss=-0.04)
+    bc.add_speculbot(algo=macd, symbols="hqu.to hsu.to heu.to hfu.to tqqq nail cure utsl retl spxl", name="MACkDy", stop_loss=-0.04)
     
     # Start notification to Webhook
     notif_loop.start(bc=bc)
@@ -38,7 +38,7 @@ def main():
 
 
 #boucle infinie
-@tasks.loop(seconds = 300) # repeat after every 100 seconds
+@tasks.loop(seconds = 600) # repeat after every 100 seconds
 async def notif_loop(bc:BotController):
     bc.send_results()
 

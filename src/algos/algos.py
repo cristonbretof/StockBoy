@@ -1,48 +1,56 @@
 import pandas
+import time
 from pandas.core.frame import DataFrame
 
 
-def macd(history, last_state, stop_loss):
+def macd(tickers, history, stop_loss):
     prices = []
-
+    print(f"LOGGING REPORT -> {time.ctime()}")
     # Add the closing prices to the prices list and make sure we start at greater than 2 dollars to reduce outlier calculations.
-    for price in history['Close']:
-        prices.append(price)
+    for ticker in tickers:
+        for price in history['Close'][ticker.name]:
+            prices.append(price)
 
-    prices_df = DataFrame(prices)  # Make a dataframe from the prices list
+        prices_df = DataFrame(prices)  # Make a dataframe from the prices list
 
-    # Calculate exponential weighted moving averages:
-    day12 = prices_df.ewm(span=12).mean()
-    day26 = prices_df.ewm(span=26).mean()
-    macd = day12 - day26
+        # Calculate exponential weighted moving averages:
+        day12 = prices_df.ewm(span=12).mean()
+        day26 = prices_df.ewm(span=26).mean()
+        macd = day12 - day26
 
-    signal = macd.ewm(span=9).mean()
+        signal = macd.ewm(span=9).mean()
 
-    current_state = -1
+        current_state = -1
+        last_state = ticker.states[-1]
 
-    # Information sur la deniere analyse, soit buy ou sell
-    compar = macd.iloc[-1][0] - signal.iloc[-1][0]
-    if compar > 0:
-        current_state = 1
-    elif compar <= 0:
-        current_state = 0
+        # Information sur la deniere analyse, soit buy ou sell
+        compar = macd.iloc[-1][0] - signal.iloc[-1][0]
+        if compar > 0:
+            current_state = 1
+        elif compar <= 0:
+            current_state = 0
 
-    closing_yesterday = prices_df.iloc[-2][0]
-    closing_today = prices_df.iloc[-1][0]
+        closing_yesterday = prices_df.iloc[-2][0]
+        closing_today = prices_df.iloc[-1][0]
 
-    if current_state == 1:
-        ratio = (closing_yesterday - closing_today)/closing_yesterday
-        if ratio < stop_loss:
-            return 0
-    print(f"LOGGING REPORT")
-    print(f"Current State: {current_state}, Last State: {last_state}")
-    print(f"MACD: {macd.iloc[-1][0]}, Signal: {signal.iloc[-1][0]}")
+        if current_state == 1:
+            ratio = (closing_yesterday - closing_today)/closing_yesterday
+            if ratio < stop_loss:
+                ticker.add_state(0)
+                continue
+        print(f"Stock = {ticker.name}")
+        print(f"Current State: {current_state}, Last State: {last_state}")
+        print(f"MACD: {macd.iloc[-1][0]}, Signal: {signal.iloc[-1][0]}")
 
-    if current_state == 1 and last_state <= 0:
-        return 1
-    elif current_state == 0 and last_state == 1:
-        return 0
-    elif current_state == 0 and last_state == -1:
-        return 0
-    elif current_state == last_state:
-        return -1
+        if current_state == 1 and last_state <= 0:
+            ticker.add_state(1)
+            continue
+        elif current_state == 0 and last_state == 1:
+            ticker.add_state(0)
+            continue
+        elif current_state == 0 and last_state == -1:
+            ticker.add_state(0)
+            continue
+        elif current_state == last_state:
+            ticker.result = -1
+            continue

@@ -6,6 +6,10 @@ from src.speculbot import SpeculBot
 import requests
 
 
+SELL = "SELL"
+BUY = "BUY"
+TBD = "TBD"
+
 class BotController:
 
     def __init__(self):
@@ -19,10 +23,19 @@ class BotController:
 
     def send_results(self):
         for name, bot in self.bots.items():
+            content = ""
             results = bot.get_results()
-            if isinstance(results, tuple):
-                content = f"Stock: {results[0]} Signal: {results[1]}"
-                self.send_notification(name=name, content=content)
+            for r in results:
+                if r.result == 1:
+                    msg = (r.name, BUY)
+                elif r.result == 0:
+                    msg = (r.name, SELL)
+                else:
+                    continue
+
+                stock_res = f"Stock: {msg[0]} Signal: {msg[1]}"
+                content += stock_res + "\n"
+            self.send_notification(name=name, content=content)
 
     def send_notification(self, content: str, name: str):
         data = {
@@ -39,8 +52,8 @@ class BotController:
         else:
             pass
 
-    def add_speculbot(self, algo, symbol, name: str, stop_loss:float):
-        self.bots[name] = SpeculBot(algo, symbol, name, stop_loss=stop_loss)
+    def add_speculbot(self, algo, symbols, name: str, stop_loss:float):
+        self.bots[name] = SpeculBot(algo, symbols, name, stop_loss=stop_loss)
         self.bots[name].start()
 
     def remove_speculbot(self, name: str):
