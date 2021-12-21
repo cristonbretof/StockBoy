@@ -49,7 +49,7 @@ async def notif_loop(bc:BotController):
     ## For time of day
     if now >= open_t and now <= close_t:
         ## For day  of the week
-        if dt.isoweekday() >= 1 and dt.isoweekday() <= 5:
+        if date.today().isoweekday() >= 1 and date.today().isoweekday() <= 5:
             bc.send_results()
 
 if __name__ == "__main__":
