@@ -35,7 +35,9 @@ class BotController:
 
                 stock_res = f"Stock: {msg[0]} Signal: {msg[1]}"
                 content += stock_res + "\n"
-            self.send_notification(name=name, content=content)
+            
+            if content != "":
+                self.send_notification(name=name, content=content)
 
     def send_notification(self, content: str, name: str):
         data = {
