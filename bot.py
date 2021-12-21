@@ -1,5 +1,6 @@
 import os
 from datetime import datetime as dt
+from datetime import date
 from dotenv import load_dotenv
 from discord.ext import commands
 from discord.ext import tasks
@@ -41,9 +42,12 @@ def main():
 #boucle infinie
 @tasks.loop(seconds = 600) # repeat after every 600 seconds
 async def notif_loop(bc:BotController):
+    now = dt.now()
+    open_t = now.replace(hour=9, minute=31, second=2)
+    close_t = now.replace(hour=16, minute=0, second=0)
+
     ## For time of day
-    if dt.now() > dt(dt.year,dt.month,dt.day,9,31,2,dt.microsecond) and \
-        dt.now() < dt(dt.year,dt.month,dt.day,16,0,0,dt.microsecond):
+    if now >= open_t and now <= close_t:
         ## For day  of the week
         if dt.isoweekday() >= 1 and dt.isoweekday() <= 5:
             bc.send_results()
