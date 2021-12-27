@@ -3,11 +3,11 @@ import time
 from pandas.core.frame import DataFrame
 
 
-def macd(tickers, history, stop_loss):
+def macd(tickers: list, history, stop_loss: list):
     prices = []
     print(f"LOGGING REPORT -> {time.ctime()}")
     # Add the closing prices to the prices list and make sure we start at greater than 2 dollars to reduce outlier calculations.
-    for ticker in tickers:
+    for ticker, sl in zip(tickers, stop_loss):
         for price in history['Close'][ticker.name]:
             prices.append(price)
 
@@ -35,7 +35,7 @@ def macd(tickers, history, stop_loss):
 
         if current_state == 1:
             ratio = (closing_yesterday - closing_today)/closing_yesterday
-            if ratio < stop_loss:
+            if ratio < sl:
                 ticker.add_state(0)
                 continue
         print(f"Stock = {ticker.name}")

@@ -9,6 +9,10 @@ from botcontroller import BotController
 from src.algos.algos import *
 
 
+symbols_list = "hqu.to hsu.to heu.to hfu.to tqqq nail cure utsl retl spxl drn fas arkw hura.to hxu.to soxl hbit.to"
+sl_list = [-0.03, -0.02, -0.04, -0.025, -0.035, -0.055, -0.03, -0.04, -0.04, -0.03, -0.04, -0.035, -0.03, -0.03, -0.015, -0.08, -0.04]
+
+
 def main():
 
     # Permet au bot de détecter la présence
@@ -25,7 +29,7 @@ def main():
 
     # Setup Bot Controller
     bc = BotController()
-    bc.add_speculbot(algo=macd, symbols="hqu.to hsu.to heu.to hfu.to tqqq nail cure utsl retl spxl", name="MACkDy", stop_loss=-0.04)
+    bc.add_speculbot(algo=macd, symbols=symbols_list, name="MACkDy", stop_loss=sl_list)
     
     # Start notification to Webhook
     notif_loop.start(bc=bc)
@@ -51,6 +55,7 @@ async def notif_loop(bc:BotController):
         ## For day  of the week
         if date.today().isoweekday() >= 1 and date.today().isoweekday() <= 5:
             bc.send_results()
+
 
 if __name__ == "__main__":
     main()

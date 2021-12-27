@@ -33,8 +33,14 @@ class BotTicker:
 
 class SpeculBot:
 
-    def __init__(self, algo, symbols, name="SpeculBot", stop_loss=-0.03):
+    def __init__(self, algo, symbols:str, name="SpeculBot", stop_loss=[]):
         self.flag = Event()
+
+        # Set stop loss to assigned values
+        if stop_loss == []:
+            self.stop_loss_ref = [-0.03 for _ in len(symbols.split())]
+        else:
+            self.stop_loss_ref = stop_loss
 
         # API vars
         self.num_API_calls = 0
@@ -50,8 +56,6 @@ class SpeculBot:
         # Donnée devant être transmise au contrôleur StockBoy
         self.latest_df = None
         self._thread = Thread(target=self.run)
-
-        self.stop_loss_ref = stop_loss
 
     def run(self):
         while not self.flag.is_set():

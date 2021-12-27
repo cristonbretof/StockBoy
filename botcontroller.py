@@ -54,7 +54,7 @@ class BotController:
         else:
             pass
 
-    def add_speculbot(self, algo, symbols, name: str, stop_loss:float):
+    def add_speculbot(self, algo, symbols, name: str, stop_loss:list):
         self.bots[name] = SpeculBot(algo, symbols, name, stop_loss=stop_loss)
         self.bots[name].start()
 
