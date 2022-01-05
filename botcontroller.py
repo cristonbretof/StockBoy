@@ -6,10 +6,6 @@ from src.speculbot import SpeculBot
 import requests
 
 
-SELL = "SELL"
-BUY = "BUY"
-TBD = "TBD"
-
 class BotController:
 
     def __init__(self):
@@ -27,9 +23,9 @@ class BotController:
             results = bot.get_results()
             for r in results:
                 if r.result == 1:
-                    msg = (r.name, BUY)
+                    msg = (r.name, "BUY")
                 elif r.result == 0:
-                    msg = (r.name, SELL)
+                    msg = (r.name, "SELL")
                 else:
                     continue
 

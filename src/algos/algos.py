@@ -33,14 +33,21 @@ def macd(tickers: list, history, stop_loss: list):
         closing_yesterday = prices_df.iloc[-2][0]
         closing_today = prices_df.iloc[-1][0]
 
-        if current_state == 1:
-            ratio = (closing_yesterday - closing_today)/closing_yesterday
-            if ratio < sl:
-                ticker.add_state(0)
-                continue
         print(f"Stock = {ticker.name}")
         print(f"Current State: {current_state}, Last State: {last_state}")
         print(f"MACD: {macd.iloc[-1][0]}, Signal: {signal.iloc[-1][0]}")
+
+        if current_state == 1:
+            ratio = (closing_today - closing_yesterday)/closing_yesterday
+            if ratio < sl:
+                print(f"Stop loss occured: ratio={ratio}  target_sl={sl}")
+
+                ticker.add_state(0)
+
+                # Pour empêcher plusieurs SELL signal en rafale
+                if ticker.states[-2] == ticker.states[-1]:
+                    ticker.result = -1
+                continue
 
         if current_state == 1 and last_state <= 0:
             ticker.add_state(1)

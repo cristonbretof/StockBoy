@@ -80,12 +80,8 @@ class SpeculBot:
 
     # Cette fonction pourrait être un peu plus spécifique en ce qui concerne l'information "fetché"
     def fetch_data(self, symbols):
-        ticker_data = yf.download(symbols, period="1y", interval="1d", threads=True)
+        ticker_data = yf.download(symbols, period="1y", interval="1d")
 
-        # Option de sauvegarder dans un .csv
-        '''
-        ticker_history.to_csv(path/to/csv)
-        '''
         self.num_API_calls += 1
         return ticker_data
     
