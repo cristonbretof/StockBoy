@@ -9,8 +9,10 @@ from botcontroller import BotController
 from src.algos.algos import *
 
 
-symbols_list = "hqu.to hsu.to heu.to hfu.to tqqq nail cure utsl retl spxl drn fas arkw hura.to hxu.to soxl hbit.to"
-sl_list = [-0.03, -0.02, -0.04, -0.025, -0.035, -0.055, -0.03, -0.04, -0.04, -0.03, -0.04, -0.035, -0.03, -0.03, -0.015, -0.08, -0.04]
+symbols_list = "hqu.to hsu.to heu.to hfu.to tqqq nail cure utsl retl spxl fas arkw hura.to hxu.to soxl "
+sl_list = [-0.03, -0.02, -0.04, -0.025, -0.035, -0.055, -0.03, -0.04, -0.04, -0.03, -0.035, -0.03, -0.03, -0.015, -0.08]
+RatingStars = "4/5 4/5 4/5 3/5 5/5 4/5 4/5 3/5 4/5 2/5 3/5 2/5 4/5 2/5 5/5 1/5" 
+
 
 
 def main():
@@ -44,7 +46,7 @@ def main():
 
 
 #boucle infinie
-@tasks.loop(seconds = 600) # repeat after every 600 seconds
+@tasks.loop(seconds = 1800) # repeat after every 1800 seconds
 async def notif_loop(bc:BotController):
     now = dt.now()
     open_t = now.replace(hour=9, minute=31, second=2)
