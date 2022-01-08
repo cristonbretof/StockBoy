@@ -14,7 +14,14 @@ class BotController:
 
     def get_url(self):
         with open(os.getcwd()+"/../bot_config.json", 'r')  as f:
-            url = json.load(f)['url']
+            url = []
+            url_dict = json.load(f)
+            nb_of_urls = len(url_dict)
+            for i in range(nb_of_urls):
+                if (i+1) > 1:
+                    url.append(url_dict["url{}".format(i+1)])
+                else:
+                    url.append(url_dict["url"])
             return url
 
     def send_results(self):
@@ -31,7 +38,7 @@ class BotController:
 
                 stock_res = f"Stock: {msg[0]} Signal: {msg[1]}"
                 content += stock_res + "\n"
-            
+
             if content != "":
                 self.send_notification(name=name, content=content)
 
@@ -41,15 +48,17 @@ class BotController:
             "username" : name
         }
 
-        result = requests.post(self.url, json=data)
+        for i in range(len(self.url)):
+            result = requests.post(self.url[i], json=data)
 
-        try:
-            result.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            print(err)
-        else:
-            pass
+            try:
+                result.raise_for_status()
+            except requests.exceptions.HTTPError as err:
+                print(err)
+            else:
+                pass
 
+        
     def add_speculbot(self, algo, symbols, name: str, stop_loss:list):
         self.bots[name] = SpeculBot(algo, symbols, name, stop_loss=stop_loss)
         self.bots[name].start()
