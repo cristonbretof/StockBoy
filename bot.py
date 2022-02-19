@@ -6,32 +6,62 @@ from discord.ext import commands
 from discord.ext import tasks
 
 from botcontroller import BotController
-from src.algos.algos import *
+from src.algos import algos
 
 
 symbols_list = "hqu.to hsu.to heu.to hfu.to tqqq nail cure utsl retl spxl fas arkw hura.to hxu.to soxl "
 sl_list = [-0.03, -0.02, -0.04, -0.025, -0.035, -0.055, -0.03, -0.04, -0.04, -0.03, -0.035, -0.03, -0.03, -0.015, -0.08]
 RatingStars = "4/5 4/5 4/5 3/5 5/5 4/5 4/5 3/5 4/5 2/5 3/5 2/5 4/5 2/5 5/5 1/5" 
 
-
-
 def main():
 
-    # Permet au bot de détecter la présence
     #intents = discord.Intents.all()
     #bot = commands.Bot(command_prefix='$', intents=intents)
     bot = commands.Bot(command_prefix='$')
+
+    # Setup Bot Controller
+    bc = BotController()
 
     @bot.event
     async def on_ready():
         print("Bot up and running")
 
+    @bot.command(name='add', help="Add a bot to SpeculBot \n-> $add <algo> <symbols> <name> [stop loss]")
+    async def add_bot(ctx, *args):
+        if not args:
+            await ctx.send(f"SpeculBot requires these 3 arguments \n-> $add <algo> <symbols> <name> [stop loss]")
+        elif len(args) < 3:
+            await ctx.send(f"SpeculBot requires at least 3 arguments \n-> $add <algo> <symbols> <name> [stop loss]")
+        else:
+            try:
+                # Get algorithm from its name, if it exists
+                algo = getattr(algos, args[0])
+            except AttributeError:
+                await ctx.send(f"First argument <algo> must contain a valid algorithm to run")
+                return
+
+            if len(args) == 4:
+                bc.add_speculbot(algo=algo, symbols=args[1], name=args[3], stop_loss=args[4])
+            else:
+                bc.add_speculbot(algo=algo, symbols=args[1], name=args[3])
+            await ctx.send(f"Added {args[3]} to Bot")
+
+    @bot.command(name='remove', help="Remove a bot from SpeculBot \n-> $remove <name>")
+    async def remove_bot(ctx, *args):
+        if not args:
+            await ctx.send(f"Bot requires only one argument \n-> $remove <name>")
+        else:
+            if len(args) == 1:
+                bc.remove_speculbot(args[0])
+            else:
+                await ctx.send(f"Bot requires only one argument \n-> $remove <name>")
+    
+    @bot.command(name='list', help="List all bots in SpeculBot \n-> $list")
+    async def list_bots(ctx, *args):
+        await ctx.send("\n".join(bc.list_all_bots()))
+
     load_dotenv()
     TOKEN = os.getenv('DISCORD_TOKEN')
-
-    # Setup Bot Controller
-    bc = BotController()
-    bc.add_speculbot(algo=macd, symbols=symbols_list, name="MACkDy", stop_loss=sl_list)
     
     # Start notification to Webhook
     notif_loop.start(bc=bc)

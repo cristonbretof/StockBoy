@@ -67,6 +67,10 @@ class BotController:
         self.bots[name].stop()
         self.bots[name].join()
 
+    def list_all_bots(self):
+        return self.bots.keys()
+            
+
     def shutdown(self):
         for bot in self.bots.values():
             bot.stop()
