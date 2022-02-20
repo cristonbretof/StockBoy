@@ -47,7 +47,8 @@ def main():
     async def list_bots(ctx, *args):
         list_of_bots = bc.list_all_bots()
         if len(list_of_bots) > 0:
-            await ctx.send("\n".join(list_of_bots))
+            for i, bot in enumerate(list_of_bots):
+                await ctx.send(f"[{i}] {bot}\n")
         else:
             await ctx.send("No bots currently running in SpeculBot")
 
