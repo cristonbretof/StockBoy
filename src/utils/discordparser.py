@@ -5,7 +5,7 @@ from src.algos import algos
 
 # Help message formats
 format_add_bot = "$add <algo> -n <name> <symbols> --sl [stop loss]"
-format_remove = "$remove <name> <symbols> --sl [stop loss]"
+format_remove_bot = "$remove <name>"
 
 async def parse_add_bot_command(ctx, args: list) -> dict:
     content = {}
@@ -44,10 +44,12 @@ async def parse_add_bot_command(ctx, args: list) -> dict:
 
 
 async def parse_remove_bot_command(ctx, args: list) -> dict:
+    content = {}
     if not args:
-        await ctx.send(f"Bot requires only one argument \n-> $remove <name>")
+        await ctx.send(f"Bot requires only one argument \n{format_remove_bot}")
     else:
         if len(args) == 1:
-            bc.remove_speculbot(args[0])
+            content["name"] = args[0]
+            return content
         else:
-            await ctx.send(f"Bot requires only one argument \n-> $remove <name>")
+            await ctx.send(f"Bot requires only one argument \n{format_remove_bot}")
