@@ -7,11 +7,12 @@ from discord.ext import tasks
 
 from botcontroller import BotController
 from src.algos import algos
+from src.utils.discordparser import *
 
 
-symbols_list = "hqu.to hsu.to heu.to hfu.to tqqq nail cure utsl retl spxl fas arkw hura.to hxu.to soxl "
+symbols_list = "hqu.to hsu.to heu.to hfu.to tqqq nail cure utsl retl spxl fas arkw hura.to hxu.to soxl"
 sl_list = [-0.03, -0.02, -0.04, -0.025, -0.035, -0.055, -0.03, -0.04, -0.04, -0.03, -0.035, -0.03, -0.03, -0.015, -0.08]
-RatingStars = "4/5 4/5 4/5 3/5 5/5 4/5 4/5 3/5 4/5 2/5 3/5 2/5 4/5 2/5 5/5 1/5" 
+RatingStars = "4/5 4/5 4/5 3/5 5/5 4/5 4/5 3/5 4/5 2/5 3/5 2/5 4/5 2/5 5/5 1/5"
 
 def main():
 
@@ -24,41 +25,31 @@ def main():
 
     @bot.event
     async def on_ready():
-        print("Bot up and running")
+        print("SpeculBot up and running!")
 
-    @bot.command(name='add', help="Add a bot to SpeculBot \n-> $add <algo> <symbols> <name> [stop loss]")
+    @bot.command(name='add', help=f"Add a bot to SpeculBot \n{format_add_bot}")
     async def add_bot(ctx, *args):
-        if not args:
-            await ctx.send(f"SpeculBot requires these 3 arguments \n-> $add <algo> <symbols> <name> [stop loss]")
-        elif len(args) < 3:
-            await ctx.send(f"SpeculBot requires at least 3 arguments \n-> $add <algo> <symbols> <name> [stop loss]")
-        else:
-            try:
-                # Get algorithm from its name, if it exists
-                algo = getattr(algos, args[0])
-            except AttributeError:
-                await ctx.send(f"First argument <algo> must contain a valid algorithm to run")
-                return
+        content = await parse_add_bot_command(ctx, args)
+        if content is None: return
+        bc.add_speculbot(algo=content["algo"], 
+                        name=content["name"],
+                        symbols=" ".join(content["symbols"]),
+                        stop_loss=content["stop_loss"])
 
-            if len(args) == 4:
-                bc.add_speculbot(algo=algo, symbols=args[1], name=args[3], stop_loss=args[4])
-            else:
-                bc.add_speculbot(algo=algo, symbols=args[1], name=args[3])
-            await ctx.send(f"Added {args[3]} to Bot")
+        botname = content["name"]
+        await ctx.send(f"Added {botname} to Bot list")
 
-    @bot.command(name='remove', help="Remove a bot from SpeculBot \n-> $remove <name>")
+    @bot.command(name='remove', help="Remove a bot from SpeculBot \n$remove <name>")
     async def remove_bot(ctx, *args):
-        if not args:
-            await ctx.send(f"Bot requires only one argument \n-> $remove <name>")
-        else:
-            if len(args) == 1:
-                bc.remove_speculbot(args[0])
-            else:
-                await ctx.send(f"Bot requires only one argument \n-> $remove <name>")
+        pass
     
-    @bot.command(name='list', help="List all bots in SpeculBot \n-> $list")
+    @bot.command(name='list', help="List all bots in SpeculBot \n$list")
     async def list_bots(ctx, *args):
-        await ctx.send("\n".join(bc.list_all_bots()))
+        list_of_bots = bc.list_all_bots()
+        if len(list_of_bots) > 0:
+            await ctx.send("\n".join(list_of_bots))
+        else:
+            await ctx.send("No bots currently running in SpeculBot")
 
     load_dotenv()
     TOKEN = os.getenv('DISCORD_TOKEN')

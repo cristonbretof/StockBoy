@@ -38,7 +38,7 @@ class SpeculBot:
 
         # Set stop loss to assigned values
         if stop_loss == []:
-            self.stop_loss_ref = [-0.03 for _ in len(symbols.split())]
+            self.stop_loss_ref = [-0.03 for _ in symbols.split(' ')]
         else:
             self.stop_loss_ref = stop_loss
 
@@ -77,6 +77,10 @@ class SpeculBot:
         self.algo(self.tickers, history, stop_loss=self.stop_loss_ref)
 
         return self.tickers
+
+    def add_ticker(self, symbol: str):
+        self.tickers.append(BotTicker(symbol))
+        self.symbols += f" {symbol}"
 
     # Cette fonction pourrait être un peu plus spécifique en ce qui concerne l'information "fetché"
     def fetch_data(self, symbols):
