@@ -28,6 +28,8 @@ class BotController:
         for name, bot in self.bots.items():
             content = ""
             results = bot.get_results()
+
+            # TODO Must be agnostic for other algos
             for r in results:
                 if r.result == 1:
                     msg = (r.name, "BUY")
@@ -40,6 +42,7 @@ class BotController:
                 content += stock_res + "\n"
 
             if content != "":
+                # TODO Must be agnostic for other algos
                 self.send_notification(name=name, content=content)
 
     def send_notification(self, content: str, name: str):
@@ -70,7 +73,6 @@ class BotController:
 
     def list_all_bots(self):
         return self.bots.keys()
-            
 
     def shutdown(self):
         for bot in self.bots.values():

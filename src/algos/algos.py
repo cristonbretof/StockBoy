@@ -1,5 +1,3 @@
-import pandas
-import inspect, sys
 import time
 from pandas.core.frame import DataFrame
 
@@ -62,3 +60,29 @@ def macd(tickers: list, history, stop_loss: list):
         elif current_state == last_state:
             ticker.result = -1
             continue
+
+def momentum(tickers: list, history, *params):
+    tabarnakesti = []
+    print(f"LOGGING REPORT -> {time.ctime()}")
+    # Add the closing prices to the prices list and make sure we start at greater than 2 dollars to reduce outlier calculations.
+    for ticker in tickers:
+        prices = []
+        for price in history['Close'][ticker.name]:
+            prices.append(price)
+
+        prices_df = DataFrame(prices)
+        
+        closing_16    = prices_df.iloc[-17][0]
+        closing_today = prices_df.iloc[-1][0]
+
+        fuck = (closing_today/closing_16)-1
+        tabarnakesti.append((fuck, ticker.name))
+
+    # Sort all cumulative return
+    sorted_tabarnakesti = sorted(tabarnakesti, reverse=True)
+
+    # Extract top 2
+    first_ticker = sorted_tabarnakesti[0]
+    second_ticker = sorted_tabarnakesti[1]
+
+    return (first_ticker[1], second_ticker[1])
