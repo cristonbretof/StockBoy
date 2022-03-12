@@ -47,9 +47,11 @@ async def parse_remove_bot_command(ctx, args: list) -> dict:
     content = {}
     if not args:
         await ctx.send(f"Bot requires only one argument \n{format_remove_bot}")
+        return None
     else:
         if len(args) == 1:
             content["name"] = args[0]
             return content
         else:
             await ctx.send(f"Bot requires only one argument \n{format_remove_bot}")
+            return None

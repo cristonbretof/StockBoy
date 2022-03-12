@@ -41,7 +41,12 @@ def main():
 
     @bot.command(name='remove', help="Remove a bot from SpeculBot \n$remove <name>")
     async def remove_bot(ctx, *args):
-        parse_remove_bot_command(ctx, args)
+        content = await parse_remove_bot_command(ctx, args)
+        if content is None: return
+        bc.remove_speculbot(name=content["name"])
+
+        botname = content["name"]
+        await ctx.send(f"Removed {botname} from Bot list")
     
     @bot.command(name='list', help="List all bots in SpeculBot \n$list")
     async def list_bots(ctx, *args):

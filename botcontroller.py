@@ -64,6 +64,7 @@ class BotController:
         self.bots[name].start()
 
     def remove_speculbot(self, name: str):
+        self.bots.pop(name)
         self.bots[name].stop()
         self.bots[name].join()
 
