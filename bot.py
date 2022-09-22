@@ -18,9 +18,7 @@ RatingStars = "4/5 4/5 4/5 3/5 5/5 4/5 4/5 3/5 4/5 2/5 3/5 2/5 4/5 2/5 5/5 1/5"
 def main():
 
     # Permet au bot de détecter la présence
-    #intents = discord.Intents.all()
-    #bot = commands.Bot(command_prefix='$', intents=intents)
-    bot = commands.Bot(command_prefix='$')
+    bot = commands.Bot(command_prefix='!')
 
     @bot.event
     async def on_ready():
@@ -46,7 +44,7 @@ def main():
 
 
 #boucle infinie
-@tasks.loop(seconds = 1800) # repeat after every 1800 seconds
+@tasks.loop(seconds = 10) # repeat after every 1800 seconds
 async def notif_loop(bc:BotController):
     now = dt.now()
     open_t = now.replace(hour=9, minute=31, second=2)
@@ -57,6 +55,7 @@ async def notif_loop(bc:BotController):
         ## For day  of the week
         if date.today().isoweekday() >= 1 and date.today().isoweekday() <= 5:
             bc.send_results()
+
 
 
 if __name__ == "__main__":

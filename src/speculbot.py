@@ -71,6 +71,8 @@ class SpeculBot:
                 print("Yahoo Finance Backed Error, Attempting to Fix")
             elif type(ex) is requests.exceptions.SSLError:
                 print("Yahoo Finance Backed Error, Attempting to Fix SSL")
+            elif type(ex) is requests.exceptions.ConnectionResetError:
+                print("Yahoo Finance Connection Reset, Attempting to Fix SSL")
             else:
                 print("{err}".format(err=ex))
 
