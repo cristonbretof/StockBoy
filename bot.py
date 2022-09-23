@@ -44,7 +44,7 @@ def main():
 
 
 #boucle infinie
-@tasks.loop(seconds = 10) # repeat after every 1800 seconds
+@tasks.loop(seconds = 1800) # repeat after every 1800 seconds
 async def notif_loop(bc:BotController):
     now = dt.now()
     open_t = now.replace(hour=9, minute=31, second=2)
